@@ -1,0 +1,20 @@
+c:\users\mac\documents\visual studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\bin\Debug\Compi2_Proyecto1_1s2016.exe.config
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\bin\Debug\Compi2_Proyecto1_1s2016.exe
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\bin\Debug\Compi2_Proyecto1_1s2016.pdb
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\bin\Debug\Compi2_Proyecto1_1s2016.xml
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.Form1.resources
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.Resources.resources
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.vbproj.GenerateResource.Cache
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.exe
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.xml
+C:\Users\Mac\Documents\Visual Studio 2012\Projects\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.pdb
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\bin\Debug\Compi2_Proyecto1_1s2016.exe.config
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.exe
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.xml
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.pdb
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\bin\Debug\Compi2_Proyecto1_1s2016.exe
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\bin\Debug\Compi2_Proyecto1_1s2016.pdb
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\bin\Debug\Compi2_Proyecto1_1s2016.xml
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.Form1.resources
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.Resources.resources
+C:\Users\Mac\Desktop\Compi2_Proyecto1_201314038\VB\Compi2_Proyecto1_1s2016\Compi2_Proyecto1_1s2016\obj\Debug\Compi2_Proyecto1_1s2016.vbproj.GenerateResource.Cache
