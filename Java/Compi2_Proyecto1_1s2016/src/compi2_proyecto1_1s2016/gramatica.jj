@@ -1,0 +1,1467 @@
+/*Ejemplo Analizador léxico y sintáctico
+COECYS 2016*/
+
+//javacc C:\Users\Mac\Documents\NetBeansProjects\Compi2_Proyecto1_1s2016\src\compi2_proyecto1_1s2016\gramatica.jj
+
+/*Opciones generales*/
+options {
+  IGNORE_CASE = true;
+  STATIC = false;
+  OUTPUT_DIRECTORY = "C://Users//Mac//Documents//NetBeansProjects//Compi2_Proyecto1_1s2016//src//compi2_proyecto1_1s2016//";
+//  FORCE_LA_CHECK = true;
+/*
+CHOICE_AMBIGUITY_CHECK = 2;
+DEBUG_PARSER = false;   //enable_tracing();  disable_tracing();
+
+
+*/
+   
+}
+
+PARSER_BEGIN(analisis) /* Nombre del analizador */
+
+/* codigo Java */
+package compi2_proyecto1_1s2016;
+
+import java.util.ArrayList;
+
+public class analisis {
+  public String ambitoActual = "";
+
+}
+
+PARSER_END(analisis)
+
+/*Especificación Léxica
+TOKEN:{..}
+SPECIAL_TOKEN{...}
+MORE:{..}
+SKIP:{..}
+*/
+TOKEN :
+{
+  <comillaT: ("\"")>
+  |<switchT: ("switch")>
+  |<trueT: ("true")>
+  |<falseT: ("false")>
+  |<thenT: ("then")>
+  |<loopT: ("loop")>
+  |<endLoopT: ("end loop")>  
+  |<doT: ("do")>
+  |<returnT: ("return")>
+  |<untilT: ("until")>
+  |<endSwitchT: ("end switch")>
+  |<endWhileT: ("end while")>
+  |<endIfT: ("end if")>
+  |<notT: ("not")>
+  |<andT: ("and")>
+  |<writeT: ("write")>
+  |<subT: ("sub")>
+  |<resultT: ("RESULT")>
+  |<endT: ("end")>
+  |<functionT: ("function")>
+  |<orT: ("or")>
+  |<forT: ("for")>
+  |<toT: ("to")>
+  |<stepT: ("step")>
+  |<caseT: ("case")>
+  |<defaultT: ("default")>
+  |<nextT: ("next")>
+  |<xorT: ("xor")>
+  |<asToken: ("as")>
+  |<whileT: ("while")>
+  |<breakT: ("break")>
+  |<ifT: ("if")>
+  |<elseifT: ("elseif")>
+  |<cierraAccionT: ("::>")>
+  |<abreAccionT: ("<::")>
+  |<elseT: ("else")>
+  |<doubleT: ("double")>
+  |<intT: ("int")>
+  |<stringT: ("string")>
+  |<charT: ("char")>
+  |<boolT: ("bool")>
+  |<floatT: ("float")>
+  |<raizT: ("raiz")>
+  |<puntoReglaT: (".Regla")>
+  |<terminalT: ("terminal")>
+  |<noterminalT: ("noterminal")>
+  |<registrarPrecedenciaT: ("registrarPrecedencia")>
+  |<asociatividadIzqT: ("asociatividad.izq")>
+  |<asociatividadDerT: ("asociatividad.der")>
+  |<resultTNum: (("result")(["0" - "9"])+)>
+  |<DEC: (( ["1"-"9"] (["0"-"9"])* | "0" )"."( ["0"-"9"] (["0"-"9"])*))>
+  |<NUM: ( ["1"-"9"] (["0"-"9"])* | "0" )  >
+  |<CHAR: (["a"-"z"]|["A"-"Z"])>
+  |<identifier: ((["a"-"z"]|["A"-"Z"])(["a"-"z"]|["A"-"Z"]|["_"]|["0"-"9"])*)>
+}
+SKIP: { 
+  <("//")((~["\n"])+)>
+  |<("/*")((~["~"])+)("*/")>
+  |    " "
+  |   "\n"
+  |   "\r"
+  |   "\t"
+}
+/*
+TOKEN_MGR_DECLS : {
+     código_JAVA
+}
+*/
+
+/*Especificación Sintáctica*/
+void Input():
+  {
+    Compi2_Proyecto1_1s2016.Precedencias = new ArrayList<Precedencia>();
+    Compi2_Proyecto1_1s2016.Tokens = new ArrayList<TokenCadenaEntrada>();
+    Compi2_Proyecto1_1s2016.auxConjuntos = new ArrayList<String>();
+    Compi2_Proyecto1_1s2016.TablaTransiciones = new ArrayList<itemTabla>();
+    Compi2_Proyecto1_1s2016.inicial = null;
+    Compi2_Proyecto1_1s2016.Conjuntos = new ArrayList<Conjunto>();
+    Compi2_Proyecto1_1s2016.TablaSimbolos = new ArrayList<Simbolo>();
+    Compi2_Proyecto1_1s2016.Terminales = new ArrayList<Terminal>();
+    Compi2_Proyecto1_1s2016.NoTerminales = new ArrayList<NoTerminal>();
+    Compi2_Proyecto1_1s2016.auxIr_A = new ArrayList<String>();
+    Compi2_Proyecto1_1s2016.cadenaReturn = "";
+    Compi2_Proyecto1_1s2016.cadenaErrores = "";
+  }
+{
+  S() <EOF>  
+}
+
+void S():{}{
+  "%%" DECLARACIONES_GRAMATICA() "%%" CODIGO() "%%"
+}
+
+void DECLARACIONES_GRAMATICA():{}{
+  DECLARACIONCES() (PRECEDENCIA())* INICIAL() GRAMATICA()
+  {
+    Compi2_Proyecto1_1s2016.LR1();
+  }
+}
+
+void GRAMATICA():{Token t; NoTerminal origen;}{
+  (
+    (t = <identifier> | t = <CHAR>) 
+    {
+      origen = Compi2_Proyecto1_1s2016.getNoTerminal(t.image);
+      if(origen == null) {
+        System.out.println("Error!! El terminal / no terminal " + t.image + " no existe.");
+      } else {
+      //System.out.println("origen: " + origen.nombre);
+      }
+    }
+    <puntoReglaT> "=" PRODUCCION(origen)
+  )+
+}
+
+void PRODUCCION(NoTerminal origen):{Object temp; Token t; nodoAST nodo = null;}{
+  (
+    (t = <identifier> | t = <CHAR>) {nodo = null;}
+    [
+      <abreAccionT> (nodo = ACCION()) <cierraAccionT>
+    ]
+    {
+      origen.addDerivacion();
+      temp = Compi2_Proyecto1_1s2016.getObject(t.image);
+      if(temp != null) {
+        origen.addHijo(temp, nodo);
+      } else {
+        System.out.println("Error!! El terminal / no terminal " + t.image + " no existe.");
+      }
+    } 
+    (
+      "+" (t = <identifier> | t = <CHAR>) {nodo = null;}
+      [<abreAccionT> (nodo = ACCION()) <cierraAccionT>]
+      {
+        temp = Compi2_Proyecto1_1s2016.getObject(t.image);
+        if(temp != null){
+          origen.addHijo(temp, nodo);
+        }else{
+          System.out.println("Error!! El terminal / no terminal " + t.image + " no existe.");
+        }
+      }
+    )*
+    (
+      "|" (t = <identifier> | t = <CHAR>){nodo = null;}
+      
+      [<abreAccionT> (nodo = ACCION()) <cierraAccionT>] 
+      {
+        origen.addDerivacion();
+        temp = Compi2_Proyecto1_1s2016.getObject(t.image);
+        if(temp != null){
+          origen.addHijo(temp, nodo);
+        }else{
+          System.out.println("Error!! El terminal / no terminal " + t.image + " no existe.");
+        }
+      }
+      (
+        "+" (t = <identifier> | t = <CHAR>) {nodo = null;}
+        [<abreAccionT> (nodo = ACCION()) <cierraAccionT>]
+        {
+          temp = Compi2_Proyecto1_1s2016.getObject(t.image);
+          if(temp != null){
+            origen.addHijo(temp, nodo);
+          }else{
+            System.out.println("Error!! El terminal / no terminal " + t.image + " no existe.");
+          }
+        }
+      )*
+    )*
+  )
+  ";"
+}
+
+nodoAST ACCION():{nodoAST n3 = null, n1= null, n2 = null;}{
+  (
+    (
+      n1 = WRITE()
+      |LOOKAHEAD(K() "++") 
+      n3 = K() ("++") 
+      {
+        System.out.println("++"); 
+        n1 = new nodoAST("++", "aumento", null, n3);
+      }
+      |LOOKAHEAD(K() "--") 
+      n3 = K() ("--") 
+      {
+        System.out.println("--"); 
+        n1 = new nodoAST("--", "decremento", null, n3);
+      }
+      |LOOKAHEAD(BUCLES())
+      n1 = BUCLES()
+      |LOOKAHEAD(K() "=")
+      n1 = ASIGNACION()
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(FLUJO()) 
+      n1 = FLUJO()
+      |LOOKAHEAD(K())
+      n1 = K()
+      /*|LOOKAHEAD(METODO_FUNCION())
+      n1 = METODO_FUNCION()
+      */
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    } ";"
+  )+
+  
+  {return n2;}
+}
+
+void INICIAL():{Token t;}{
+  <raizT> "=" (t = <identifier> | t = <CHAR>)
+  {
+    Compi2_Proyecto1_1s2016.setInicial(t.image);
+  }
+  ";"
+}
+
+void PRECEDENCIA():{Token valor; int asociatividad = -1; Token t; Precedencia temp; ArrayList<String> hijos = new ArrayList<String>();}{
+  <registrarPrecedenciaT> "(" valor = <NUM> "," [asociatividad = ASOCIATIVIDAD()] 
+  (t = <identifier> | t = <CHAR>) 
+  {
+    hijos.add(t.image);
+  }
+  (
+    "," 
+    (
+      t = <identifier> | t = <CHAR>
+    )
+    {
+      hijos.add(t.image);
+    }
+  )* 
+  {
+    temp = new Precedencia(Integer.parseInt(valor.image), asociatividad, hijos);
+  }
+  ")" ";"
+  {Compi2_Proyecto1_1s2016.showPrecedencias();}
+}
+
+int ASOCIATIVIDAD():{int asociatividad = 0;}{
+  ( 
+    <asociatividadIzqT> {asociatividad = 0; System.out.println("izq");}
+    |
+    <asociatividadDerT> {asociatividad = 1; System.out.println("der");}
+  ) ","
+  {return asociatividad;}
+}
+
+
+void DECLARACIONCES():
+{
+  int tipoProduccion, tipo; 
+  Token t; 
+  ArrayList<Terminal> ultimosT = new ArrayList<Terminal>();
+  ArrayList<NoTerminal> ultimosNT = new ArrayList<NoTerminal>();
+}
+{
+  (
+    (
+      t = <terminalT> {ultimosT = new ArrayList<Terminal>(); tipo = 0;}
+    |
+      t = <noterminalT> {ultimosNT = new ArrayList<NoTerminal>(); tipo = 1;}
+    )
+    (t = <identifier> | t = <CHAR>)
+    {
+      if(tipo == 0){
+        Terminal temp = new Terminal(t.image);
+        ultimosT.add(temp);
+        Compi2_Proyecto1_1s2016.addTerminal(temp);
+      } else {
+        NoTerminal temp = new NoTerminal(t.image);
+        ultimosNT.add(temp);
+        Compi2_Proyecto1_1s2016.addNoTerminal(temp);
+      }
+    }
+    ("," (t = <identifier> | t = <CHAR>) {
+        if(tipo == 0){
+          Terminal temp = new Terminal(t.image);
+          ultimosT.add(temp);
+          Compi2_Proyecto1_1s2016.addTerminal(temp);
+        } else {
+          NoTerminal temp = new NoTerminal(t.image);
+          ultimosNT.add(temp);
+          Compi2_Proyecto1_1s2016.addNoTerminal(temp);
+        }
+      }
+    )* 
+    [
+      <asToken> tipoProduccion = TIPO()
+      {
+        if (tipo == 0) {
+            for (Terminal ultimosT1 : ultimosT) {
+                ultimosT1.setTipoReturn(tipoProduccion);
+            }
+        } else {
+            for (NoTerminal ultimosNT1 : ultimosNT) {
+                ultimosNT1.setTipoReturn(tipoProduccion);
+            }
+        }
+      }
+    ] 
+    ";"
+  )+ 
+  {
+    for (NoTerminal n: Compi2_Proyecto1_1s2016.NoTerminales) {
+        System.out.println("nombreNT: " + n.nombre + ". " + n.tipoReturn);
+    }
+    for (Terminal n: Compi2_Proyecto1_1s2016.Terminales) {
+        System.out.println("nombreT: " + n.nombre + ". " + n.tipoReturn);
+    }
+  }
+}
+
+nodoAST CODIGO():{Token t; int tipo; nodoAST nodo = null;}{
+  nodo = SENTENCIA()
+  {
+    nodo.ejecutar();
+    Graphviz g = new Graphviz();
+    g.graficarAST(nodo);
+    // for(Simbolo a: Compi2_Proyecto1_1s2016.TablaSimbolos){
+      // System.out.println(a.nombre + a.ambito + a.fila + a.columna + a.tipo);
+    // }
+    return nodo;
+  }
+}
+
+nodoAST SENTENCIA():{nodoAST n3 = null, n1 = null, nodo = null;}{
+  
+  (
+    (
+      LOOKAHEAD(K() "++") 
+      n3 = K() ("++") 
+      {
+        System.out.println("++"); 
+        n1 = new nodoAST("++", "aumento", null, n3);
+      }
+      |LOOKAHEAD(K() "--") 
+      n3 = K() ("--") 
+      {
+        System.out.println("--"); 
+        n1 = new nodoAST("--", "decremento", null, n3);
+      }
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(BUCLES())
+      n1 = BUCLES()
+      |LOOKAHEAD(WRITE())
+      n1 = WRITE()
+      |LOOKAHEAD(K() "=")
+      n1 = ASIGNACION()
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(FLUJO()) 
+      n1 = FLUJO()
+      // |LOOKAHEAD(EXPRESION())
+      // n1 = EXPRESION()
+      |LOOKAHEAD(METODO_FUNCION())
+      n1 = METODO_FUNCION() 
+      |LOOKAHEAD(K())
+      n1 = K()
+    )
+    {
+      if(nodo == null){
+        nodo = new nodoAST("sentencias", "sentencias", null, n1);
+      }else{
+        nodo.addHijo(n1);
+      }
+    }
+  )+
+  {return nodo;}
+}
+
+nodoAST FLUJO():{nodoAST nodo = null;}{
+  (
+    nodo = IF_STATEMENT()
+    |nodo = SWITCH_STATEMENT()
+  )
+  {return nodo;}
+}
+
+nodoAST IF_STATEMENT():{nodoAST n3 = null, nodo = null, n1 = null, n2 = null, condicion = null;}{
+  <ifT> condicion = EXPRESION() <thenT>
+  (
+    (
+      LOOKAHEAD(K() "++") 
+      n3 = K() ("++") 
+      {
+        System.out.println("++"); 
+        n1 = new nodoAST("++", "aumento", null, n3);
+      }
+      |LOOKAHEAD(K() "--") 
+      n3 = K() ("--") 
+      {
+        System.out.println("--"); 
+        n1 = new nodoAST("--", "decremento", null, n3);
+      }
+      |LOOKAHEAD(BUCLES())
+      n1 = BUCLES()
+      |LOOKAHEAD(WRITE())
+      n1 = WRITE()
+      |LOOKAHEAD(K() "=")
+      n1 = ASIGNACION()
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(FLUJO()) 
+      n1 = FLUJO()
+      |LOOKAHEAD(METODO_FUNCION())
+      n1 = METODO_FUNCION()
+      |LOOKAHEAD(K())
+      n1 = K()
+      |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+      |<breakT> {n1 = new nodoAST("break", "break", null);}
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+
+  {
+    nodo = new nodoAST("if", "if", null, condicion, n2);
+  }   
+  (
+    <elseifT> {n2 = null;} condicion = EXPRESION() <thenT>
+    (
+      (
+          LOOKAHEAD(K() "++") 
+        n3 = K() ("++") 
+        {
+          System.out.println("++"); 
+          n1 = new nodoAST("++", "aumento", null, n3);
+        }
+        |LOOKAHEAD(K() "--") 
+        n3 = K() ("--") 
+        {
+          System.out.println("--"); 
+          n1 = new nodoAST("--", "decremento", null, n3);
+        }
+        |LOOKAHEAD(BUCLES())
+        n1 = BUCLES()
+        |LOOKAHEAD(WRITE())
+        n1 = WRITE()
+        |LOOKAHEAD(K() "=")
+        n1 = ASIGNACION()
+        |LOOKAHEAD(DECLARACION())
+        n1 = DECLARACION()
+        |LOOKAHEAD(FLUJO()) 
+        n1 = FLUJO()
+        |LOOKAHEAD(METODO_FUNCION())
+        n1 = METODO_FUNCION()
+        |LOOKAHEAD(K())
+        n1 = K()
+        |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+        |<breakT> {n1 = new nodoAST("break", "break", null);}
+      )
+      {
+        if(n2 == null){
+          n2 = new nodoAST("body", "body", null, n1);
+        }else{
+          n2.addHijo(n1);
+      }
+    }
+    )+
+    {
+      nodo.addHijo(new nodoAST("elseif", "elseif", null, condicion, n2));
+    } 
+  )*
+  [
+    <elseT> {n2 = null;}
+    (
+      (
+          LOOKAHEAD(K() "++") 
+        n3 = K() ("++") 
+        {
+          System.out.println("++"); 
+          n1 = new nodoAST("++", "aumento", null, n3);
+        }
+        |LOOKAHEAD(K() "--") 
+        n3 = K() ("--") 
+        {
+          System.out.println("--"); 
+          n1 = new nodoAST("--", "decremento", null, n3);
+        }
+        |LOOKAHEAD(BUCLES())
+        n1 = BUCLES()
+        |LOOKAHEAD(WRITE())
+        n1 = WRITE()
+        |LOOKAHEAD(K() "=")
+        n1 = ASIGNACION()
+        |LOOKAHEAD(DECLARACION())
+        n1 = DECLARACION()
+        |LOOKAHEAD(FLUJO()) 
+        n1 = FLUJO()
+        |LOOKAHEAD(METODO_FUNCION())
+        n1 = METODO_FUNCION()
+        |LOOKAHEAD(K())
+        n1 = K()
+        |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+        |<breakT> {n1 = new nodoAST("break", "break", null);}
+      )
+      {
+        if(n2 == null){
+          n2 = new nodoAST("body", "body", null, n1);
+        }else{
+          n2.addHijo(n1);
+        }
+      }
+    )+
+    {
+      nodo.addHijo(new nodoAST("else", "else", null, n2));
+    }
+  ]
+  <endIfT>
+  {return nodo;}
+}
+
+nodoAST SWITCH_STATEMENT():{nodoAST n2 = null, n1 = null, nodo = null, condicion = null;}{
+  <switchT> condicion = EXPRESION() 
+  (
+    n1 = CASO()
+    {
+      if(n2 == null){
+        n2 = new nodoAST("cases", "cases", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+ 
+  <endSwitchT>
+  {return new nodoAST("switch","switch", null, condicion, n2);}
+}
+
+nodoAST CASO():{nodoAST n3 = null, condicion = null, nodo = null, n2 = null, n1 = null;}{
+  <caseT> (condicion = EXPRESION() |<defaultT> {condicion = new nodoAST("default", "default", null);})
+  (
+    (
+      LOOKAHEAD(K() "++") 
+      n3 = K() ("++") 
+      {
+        System.out.println("++"); 
+        n1 = new nodoAST("++", "aumento", null, n3);
+      }
+      |LOOKAHEAD(K() "--") 
+      n3 = K() ("--") 
+      {
+        System.out.println("--"); 
+        n1 = new nodoAST("--", "decremento", null, n3);
+      }
+      |LOOKAHEAD(BUCLES())
+      n1 = BUCLES()
+      |LOOKAHEAD(WRITE())
+      n1 = WRITE()
+      |LOOKAHEAD(K() "=")
+      n1 = ASIGNACION()
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(FLUJO()) 
+      n1 = FLUJO()
+      |LOOKAHEAD(METODO_FUNCION())
+      n1 = METODO_FUNCION()
+      |LOOKAHEAD(K())
+      n1 = K()
+      |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+      |<breakT> {n1 = new nodoAST("break", "break", null);}
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+
+  {return new nodoAST("case","case", null, condicion, n2);}
+}
+
+nodoAST DECLARACION():{
+  ArrayList<String> listaIDs = new ArrayList<String>(); 
+  Token t1, t2;
+  int tipo, contadorDimensiones = 0;
+  nodoAST n1 = null, n2 = null, nodo = null;
+}
+{
+  (t1 = <identifier> | t1 = <CHAR>) {System.out.println(t1.image + "**");}
+  [
+    (
+      "," 
+      {
+        if(n1 == null) {
+          n1 = new nodoAST("variables","variables", null, new nodoAST(t1.image, "identifier", t1.image));
+        }
+      }
+      (t2 = <identifier> | t2 = <CHAR>) 
+      {
+        n1.addHijo(new nodoAST(t2.image, "identifier", t2.image));
+      }
+      {System.out.println(t2.image + "**");} 
+    )+
+    |
+    (
+      "(" t2 = <NUM> ")" 
+      {
+        if(n2 == null) {
+          n2 = new nodoAST("[]", "arreglo", null, new nodoAST(t1.image, "identifier", t1.image), new nodoAST(t2.image, "dimension", Integer.parseInt(t2.image)));
+        }else{
+          n2.addHijo(new nodoAST(t2.image, "dimension", Integer.parseInt(t2.image)));
+        }
+      }
+    )+
+  ] <asToken> tipo = TIPO() 
+  {
+    if(n1 == null){
+      n1 = new nodoAST("variables","variables", null, new nodoAST(t1.image, "identifier", t1.image));
+    }
+    if(n2 != null){
+      nodo = new nodoAST("declaracion", "declaracion", null, n2, new nodoAST(tipo + "", "tipo", tipo));
+    }else{
+      nodo = new nodoAST("declaracion", "declaracion", null, n1, new nodoAST(tipo + "", "tipo", tipo));
+    }
+    return nodo;
+  }
+}
+
+nodoAST EXPRESION():{nodoAST nodo, n1, n2 = null;}{
+  //>, <, >=, <=, ==, !=, OR, XOR, AND, NOT
+  //suma, resta, multiplicacion, division, potencia, aumento, decremento
+  nodo = E() 
+  (
+    <orT> n1 = E() 
+    {
+      System.out.println("or"); 
+      n2 = nodo; 
+      nodo = new nodoAST("or", "or", null, n2, n1);
+    }
+  )*
+  {return nodo;}
+}
+
+
+nodoAST E():{nodoAST nodo, n1, n2 = null;}{
+  nodo = F() 
+  (
+    <xorT> n1 = F()
+    {
+      System.out.println("xor"); 
+      n2 = nodo; 
+      nodo = new nodoAST("xor", "xor", null, n2, n1);
+    }
+  )*
+  {return nodo;}
+}
+
+nodoAST F():{nodoAST nodo, n1, n2 = null;}{
+  nodo = G() 
+  (
+    <andT> n1 = G() 
+    {
+      System.out.println("and"); 
+      n2 = nodo; 
+      nodo = new nodoAST("and", "and", null, n2, n1);
+    }
+  )*
+  {return nodo;}
+}
+
+nodoAST G():{nodoAST nodo, n2 = null; int flag = 0;}{
+  (<notT> {flag++;})* nodo = FIX()
+  {
+    if(flag % 2 != 0){
+      System.out.println("not -> flag: " + flag); 
+      n2 = nodo; 
+      nodo = new nodoAST("not", "not", null, n2);
+    }
+  }
+  {return nodo;}
+}
+
+nodoAST FIX():{nodoAST nodo, n1, n2 = null;}{
+  nodo = A() 
+  (
+    ">" n1 = A()
+    {
+      System.out.println(">"); 
+      n2 = nodo; 
+      nodo = new nodoAST(">", "mayor", null, n2, n1);
+    }
+    |"<" n1 = A() 
+    {
+      System.out.println("<"); 
+      n2 = nodo; 
+      nodo = new nodoAST("<", "menor", null, n2, n1);
+    }
+    |">=" n1 = A() 
+    {
+      System.out.println(">="); 
+      n2 = nodo; 
+      nodo = new nodoAST(">=", "mayorigual", null, n2, n1);
+    }
+    |"<=" n1 = A() {
+      System.out.println("<="); 
+      n2 = nodo; 
+      nodo = new nodoAST("<=", "menorigual", null, n2, n1);
+    }
+    |"!=" n1 = A() {
+      System.out.println("!="); 
+      n2 = nodo; 
+      nodo = new nodoAST("!=", "diferente", null, n2, n1);
+    }
+    |"==" n1 = A() {
+      System.out.println("=="); 
+      n2 = nodo; 
+      nodo = new nodoAST("==", "igual", null, n2, n1);
+    }
+  )*
+  {return nodo;}
+}
+
+nodoAST A():{nodoAST nodo, n2 = null;}{
+  (
+    LOOKAHEAD(K() "++") 
+    nodo = K() ("++") 
+    {
+      System.out.println("++"); 
+      n2 = nodo; 
+      nodo = new nodoAST("++", "aumento", null, n2);
+    }
+    |LOOKAHEAD(K() "--") 
+    nodo = K() ("--") 
+    {
+      System.out.println("--"); 
+      n2 = nodo; 
+      nodo = new nodoAST("--", "decremento", null, n2);
+    }
+    |nodo = H()
+  )
+  {return nodo;}
+}
+
+nodoAST H():{nodoAST nodo, n2, n1 = null;}{
+  nodo = I() 
+  (
+    "+" n1 = I() 
+    {
+      System.out.println("+"); 
+      n2 = nodo; 
+      nodo = new nodoAST("+", "suma", null, n2, n1);
+    }
+    |"-" n1 = I() 
+    {
+      System.out.println("-"); 
+      n2 = nodo; 
+      nodo = new nodoAST("-", "resta", null, n2, n1);
+    }
+  )*
+  {return nodo;}
+}
+
+nodoAST I():{nodoAST nodo, n2, n1 = null;}{
+  nodo = J() 
+  (
+    "*" n1 = J() 
+    {
+      System.out.println("*"); 
+      n2 = nodo; 
+      nodo = new nodoAST("*", "multiplicacion", null, n2, n1);
+    }
+    |"/" n1 = J() 
+    {
+      System.out.println("/"); 
+      n2 = nodo; 
+      nodo = new nodoAST("/", "division", null, n2, n1);
+    }
+  )*
+  {return nodo;}
+}
+
+nodoAST J():{Token t; nodoAST nodo, n1, n2 = null;}{
+  nodo = K() 
+  (
+    "^" n1 = K() 
+    {
+      System.out.println("^"); 
+      n2 = nodo; 
+      nodo = new nodoAST("^", "potencia", null, n2, n1);
+    }
+  )*
+  {return nodo;}
+}
+
+nodoAST K():{String texto = ""; Token taux = null, t = null; nodoAST nodo = null, n2 = null, n1 = null;}{
+  (
+    t = <resultTNum>
+    {
+      nodo = new nodoAST("result", "result", null, new nodoAST(t.image.substring(6), "num", Integer.parseInt(t.image.substring(6))));
+    }
+    [
+    "." (t = <identifier> | t = <CHAR>) {nodo.addHijo(new nodoAST(t.image, "identifier", t.image));}
+    ]
+    |LOOKAHEAD(3)
+    (t = <identifier> | t = <CHAR>)
+    (
+      (
+        "(" 
+          [
+            n1 = EXPRESION() 
+            {
+              if(n2 == null){
+                n2 = new nodoAST("items", "items", null, n1);
+              }else{
+                n2.addHijo(n1);
+              }
+            }
+            (
+              "," n1 = EXPRESION()
+            {
+              if(n2 == null){
+                n2 = new nodoAST("items", "items", null, n1);
+              }else{
+                n2.addHijo(n1);
+              }
+            }
+            )*
+          ] 
+        ")"
+      )+ 
+    )
+    {
+      nodo = new nodoAST("arreglo/funcion", "arreglo/funcion", null, new nodoAST(t.image, "identifier", t.image), n2);
+    }
+    |LOOKAHEAD(<CHAR>)
+    t = <CHAR>
+    {
+      nodo = new nodoAST(t.image, "identifier", t.image);
+    }
+
+    |<trueT>
+    {
+      nodo = new nodoAST("true", "true", true);
+    }
+
+    |<falseT>
+    {
+      nodo = new nodoAST("false", "false", false);
+    }
+
+    |"'" t = <CHAR> "'" 
+    {
+      nodo = new nodoAST(t.image, "char", t.image.charAt(0));
+    }
+
+    |LOOKAHEAD(LISTA_STRINGS())
+    texto = LISTA_STRINGS() 
+    {
+      nodo = new nodoAST(texto, "string", texto);
+    }    
+
+    |t = <NUM> 
+    {
+      nodo = new nodoAST(t.image, "num", Integer.parseInt(t.image));
+    }
+
+    |t = <DEC> 
+    {
+      nodo = new nodoAST(t.image, "double", Double.parseDouble(t.image));
+    }
+    
+    |t = <identifier> 
+    {
+      nodo = new nodoAST(t.image, "identifier", t.image);
+    }
+    
+    |nodo = L()
+  )
+  {
+    if(t != null){
+      System.out.println(t.image + "-+");
+    }
+    return nodo;
+  }
+}
+
+String LISTA_STRINGS():{String texto = ""; Token t;}{
+  "\""
+  (
+    t = <identifier> 
+    |t = <CHAR>
+    |t = <switchT> 
+    |t = <trueT>
+    |t = <falseT>
+    |t = <thenT>
+    |t = <loopT>
+    |t = <endLoopT>
+    |t = <doT>
+    |t = <untilT>
+    |t = <endSwitchT>
+    |t = <endWhileT>
+    |t = <endIfT>
+    |t = <notT>
+    |t = <andT>
+    |t = <writeT>
+    |t = <subT>
+    |t = <resultT>
+    |t = <endT>
+    |t = <functionT>
+    |t = <orT>
+    |t = <forT>
+    |t = <toT>
+    |t = <stepT>
+    |t = <caseT>
+    |t = <defaultT>
+    |t = <nextT>
+    |t = <xorT>
+    |t = <asToken>
+    |t = <whileT>
+    |t = <breakT>
+    |t = <ifT>
+    |t = <elseifT>
+    |t = <elseT>
+    |t = <doubleT>
+    |t = <intT>
+    |t = <stringT>
+    |t = <charT>
+    |t = <boolT>
+    |t = <floatT>
+    |t = <raizT>
+    |t = <NUM>
+  )
+  {texto = t.image;}
+
+  (
+    (
+      t = <identifier> 
+      |t = <CHAR>
+      |t = <switchT> 
+      |t = <trueT>
+      |t = <falseT>
+      |t = <thenT>
+      |t = <loopT>
+      |t = <endLoopT>
+      |t = <doT>
+      |t = <untilT>
+      |t = <endSwitchT>
+      |t = <endWhileT>
+      |t = <endIfT>
+      |t = <notT>
+      |t = <andT>
+      |t = <writeT>
+      |t = <subT>
+      |t = <resultT>
+      |t = <endT>
+      |t = <functionT>
+      |t = <orT>
+      |t = <forT>
+      |t = <toT>
+      |t = <stepT>
+      |t = <caseT>
+      |t = <defaultT>
+      |t = <nextT>
+      |t = <xorT>
+      |t = <asToken>
+      |t = <whileT>
+      |t = <breakT>
+      |t = <ifT>
+      |t = <elseifT>
+      |t = <elseT>
+      |t = <doubleT>
+      |t = <intT>
+      |t = <stringT>
+      |t = <charT>
+      |t = <boolT>
+      |t = <floatT>
+      |t = <raizT>
+      |t = <NUM>  
+    )
+    {
+      texto += " " + t.image;
+    }
+  )* "\""
+  {
+    System.out.println("El texto: " + texto);
+    return texto;
+  }
+}
+
+nodoAST L():{Token t; nodoAST nodo = null;}{
+  (
+    "{" nodo = EXPRESION() "}"  {System.out.println("{}"); return nodo;}
+    |nodo = M() {return nodo;}
+  )
+  {return nodo;}
+}
+
+nodoAST M():{Token t; nodoAST nodo = null;}{
+  (
+    "[" nodo = EXPRESION() "]"  {System.out.println("[]"); return nodo;}
+    |nodo = N() {return nodo;}
+  )
+  {return nodo;}
+}
+
+nodoAST N():{Token t; nodoAST nodo = null;}{
+  (
+    "(" nodo = EXPRESION() ")" {System.out.println("()"); return nodo;}
+  )
+}
+
+
+nodoAST METODO_FUNCION():{nodoAST nodo = null;}{
+  
+  (
+    LOOKAHEAD(METODO())
+    nodo = METODO()
+    |LOOKAHEAD(FUNCION())
+    nodo = FUNCION()
+  )
+  {return nodo;}
+}
+
+nodoAST METODO():{int tipo; nodoAST n3 = null, n2 = null, nodo  = null, n1 = null; Token param = null, nombre = null;}{
+  (
+    <subT>  (nombre = <identifier> | nombre = <CHAR>)
+    {
+      nodo = new nodoAST("metodo", "metodo", null, new nodoAST(nombre.image, "identifier", nombre.image));
+    }
+   "("
+    [
+    
+      (param = <identifier> | param = <CHAR>) <asToken> tipo = TIPO() 
+      {
+        n3 = new nodoAST("parametros", "parametros", null, new nodoAST("parametro", "parametro", null, new nodoAST(param.image, "identifier", param.image), new nodoAST(tipo + "", "tipo", tipo)));
+      }
+      (
+        "," (param = <identifier> | param = <CHAR>) <asToken> tipo = TIPO()
+        {
+          n3.addHijo(new nodoAST("parametro", "parametro", null, new nodoAST(param.image, "identifier", param.image), new nodoAST(tipo + "", "tipo", tipo)));
+        }
+      )*
+      {
+        nodo.addHijo(n3);
+      }
+    ]
+   ")" 
+
+   (
+    (
+        LOOKAHEAD(K() "++") 
+        n3 = K() ("++") 
+        {
+          System.out.println("++"); 
+          n1 = new nodoAST("++", "aumento", null, n3);
+        }
+        |LOOKAHEAD(K() "--") 
+        n3 = K() ("--") 
+        {
+          System.out.println("--"); 
+          n1 = new nodoAST("--", "decremento", null, n3);
+        }
+        |LOOKAHEAD(BUCLES())
+        n1 = BUCLES()
+        |LOOKAHEAD(WRITE())
+        n1 = WRITE()
+        |LOOKAHEAD(K() "=")
+        n1 = ASIGNACION()
+        |LOOKAHEAD(DECLARACION())
+        n1 = DECLARACION()
+        |LOOKAHEAD(FLUJO()) 
+        n1 = FLUJO()
+        |LOOKAHEAD(METODO_FUNCION())
+        n1 = METODO_FUNCION()
+        |LOOKAHEAD(K())
+        n1 = K()
+        |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+
+   <endT> <subT>
+  )
+  {
+    nodo.addHijo(n2);
+    return nodo;
+  }
+}
+
+nodoAST FUNCION():{int tipo; nodoAST n3 = null, n2 = null, nodo  = null, n1 = null; Token param = null, nombre = null;}{
+  (
+    <functionT>  (nombre = <identifier> | nombre = <CHAR>)
+    {
+      nodo = new nodoAST("funcion", "funcion", null, new nodoAST(nombre.image, "identifier", nombre.image));
+    }
+   "("
+    [
+    
+      (param = <identifier> | param = <CHAR>) <asToken> tipo = TIPO() 
+      {
+        n3 = new nodoAST("parametros", "parametros", null, new nodoAST("parametro", "parametro", null, new nodoAST(param.image, "identifier", param.image), new nodoAST(tipo + "", "tipo", tipo)));
+      }
+      (
+        "," (param = <identifier> | param = <CHAR>) <asToken> tipo = TIPO()
+        {
+          n3.addHijo(new nodoAST("parametro", "parametro", null, new nodoAST(param.image, "identifier", param.image), new nodoAST(tipo + "", "tipo", tipo)));
+        }
+      )*
+      {
+        nodo.addHijo(n3);
+      }
+    ]
+   ")" 
+   <asToken> tipo = TIPO() {nodo.addHijo(new nodoAST(tipo + "", "tipo", tipo));}
+   (
+    (
+        LOOKAHEAD(K() "++") 
+        n3 = K() ("++") 
+        {
+          System.out.println("++"); 
+          n1 = new nodoAST("++", "aumento", null, n3);
+        }
+        |LOOKAHEAD(K() "--") 
+        n3 = K() ("--") 
+        {
+          System.out.println("--"); 
+          n1 = new nodoAST("--", "decremento", null, n3);
+        }
+        |LOOKAHEAD(BUCLES())
+        n1 = BUCLES()
+        |LOOKAHEAD(WRITE())
+        n1 = WRITE()
+        |LOOKAHEAD(K() "=")
+        n1 = ASIGNACION()
+        |LOOKAHEAD(DECLARACION())
+        n1 = DECLARACION()
+        |LOOKAHEAD(FLUJO()) 
+        n1 = FLUJO()
+        |LOOKAHEAD(METODO_FUNCION())
+        n1 = METODO_FUNCION()
+        |LOOKAHEAD(K())
+        n1 = K()
+        |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+
+   <endT> <functionT>
+  )
+  {
+    nodo.addHijo(n2);
+    return nodo;
+  }
+}
+
+nodoAST ASIGNACION():{nodoAST n1 = null, nodo = null;}{
+  (
+    n1 = K() "=" nodo = EXPRESION() 
+    {
+      nodo = new nodoAST("=", "asignacion", null, n1, nodo);
+      return nodo;
+    } 
+  )
+}
+
+nodoAST WRITE():{nodoAST nodo = null, n1 = null;}{
+  <writeT> "(" n1 = EXPRESION() ")" 
+  {
+    nodo = new nodoAST("write", "write", null, n1);
+    System.out.println("write that");
+  }
+  {return nodo;}
+}
+
+nodoAST BUCLES():{nodoAST nodo = null;}{
+  {System.out.println("bucles");}
+  (
+    LOOKAHEAD(DOUNTIL())
+    nodo = DOUNTIL()
+    |LOOKAHEAD(WHILE())
+    nodo = WHILE()
+    |LOOKAHEAD(LOOP())
+    nodo = LOOP()
+    |nodo = FOR()
+  )
+  {return nodo;}
+}
+
+nodoAST WHILE():{nodoAST n3 = null, condicion = null, n1 = null, n2 = null, nodo = null;}{
+  <whileT> condicion = EXPRESION() 
+  (
+    (
+      LOOKAHEAD(K() "++") 
+      n3 = K() ("++") 
+      {
+        System.out.println("++"); 
+        n1 = new nodoAST("++", "aumento", null, n3);
+      }
+      |LOOKAHEAD(K() "--") 
+      n3 = K() ("--") 
+      {
+        System.out.println("--"); 
+        n1 = new nodoAST("--", "decremento", null, n3);
+      }
+      |LOOKAHEAD(BUCLES())
+      n1 = BUCLES()
+      |LOOKAHEAD(WRITE())
+      n1 = WRITE()
+      |LOOKAHEAD(K() "=")
+      n1 = ASIGNACION()
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(FLUJO()) 
+      n1 = FLUJO()
+      // |LOOKAHEAD(EXPRESION())
+      // n1 = EXPRESION()
+      |LOOKAHEAD(METODO_FUNCION())
+      n1 = METODO_FUNCION()
+      |LOOKAHEAD(K())
+      n1 = K()
+      |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+      |<breakT> {n1 = new nodoAST("break", "break", null);}
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+
+  <endWhileT>
+  {
+    nodo = new nodoAST("while","while", null, condicion, n2);
+    return nodo;
+  }
+}
+
+
+nodoAST DOUNTIL():{nodoAST n3 = null, condicion = null, n1 = null, n2 = null, nodo = null;}{
+  <doT> 
+  (
+    (
+      LOOKAHEAD(K() "++") 
+      n3 = K() ("++") 
+      {
+        System.out.println("++"); 
+        n1 = new nodoAST("++", "aumento", null, n3);
+      }
+      |LOOKAHEAD(K() "--") 
+      n3 = K() ("--") 
+      {
+        System.out.println("--"); 
+        n1 = new nodoAST("--", "decremento", null, n3);
+      }
+      |LOOKAHEAD(BUCLES())
+      n1 = BUCLES()
+      |LOOKAHEAD(WRITE())
+      n1 = WRITE()
+      |LOOKAHEAD(K() "=")
+      n1 = ASIGNACION()
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(FLUJO()) 
+      n1 = FLUJO()
+      // |LOOKAHEAD(EXPRESION())
+      // n1 = EXPRESION()
+      |LOOKAHEAD(METODO_FUNCION())
+      n1 = METODO_FUNCION()
+      |LOOKAHEAD(K())
+      n1 = K()
+      |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+      |<breakT> {n1 = new nodoAST("break", "break", null);}
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+
+  <untilT> condicion = EXPRESION() 
+  {
+    nodo = new nodoAST("dountil","dountil", null, condicion, n2);
+    return nodo;
+  }
+  {return nodo;}
+}
+
+
+
+nodoAST LOOP():{nodoAST n3 = null, condicion = null, n1 = null, n2 = null, nodo = null;}{
+  <loopT> 
+  (
+    (
+      LOOKAHEAD(K() "++") 
+      n3 = K() ("++") 
+      {
+        System.out.println("++"); 
+        n1 = new nodoAST("++", "aumento", null, n3);
+      }
+      |LOOKAHEAD(K() "--") 
+      n3 = K() ("--") 
+      {
+        System.out.println("--"); 
+        n1 = new nodoAST("--", "decremento", null, n3);
+      }
+      |LOOKAHEAD(BUCLES())
+      n1 = BUCLES()
+      |LOOKAHEAD(WRITE())
+      n1 = WRITE()
+      |LOOKAHEAD(K() "=")
+      n1 = ASIGNACION()
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(FLUJO()) 
+      n1 = FLUJO()
+      // |LOOKAHEAD(EXPRESION())
+      // n1 = EXPRESION()
+      |LOOKAHEAD(METODO_FUNCION())
+      n1 = METODO_FUNCION()
+      |LOOKAHEAD(K())
+      n1 = K()
+      |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+      |<breakT> {n1 = new nodoAST("break", "break", null);}
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+
+  <endLoopT>
+  {
+    nodo = new nodoAST("loop","loop", null, n2);
+    return nodo;
+  }
+  {return nodo;}
+}
+
+
+nodoAST FOR():{nodoAST n2 = null, n1 = null, nodo = null, n3 = null; int salto = 1, negativo = 0; Token t, t1, inf, sup;}{
+  <forT>
+  (t1 = <identifier> | t1 = <CHAR>) "=" inf = <NUM> <toT> sup = <NUM> 
+  [<stepT> ["-" {negativo = 1;}] t = <NUM> 
+  {
+    if(negativo == 1){
+      salto = (-1) * (Integer.parseInt(t.image));
+    }else{
+      salto = Integer.parseInt(t.image);
+    }
+  }
+  ]
+  (
+    (
+      LOOKAHEAD(K() "++") 
+      n3 = K() ("++") 
+      {
+        System.out.println("++"); 
+        n1 = new nodoAST("++", "aumento", null, n3);
+      }
+      |LOOKAHEAD(K() "--") 
+      n3 = K() ("--") 
+      {
+        System.out.println("--"); 
+        n1 = new nodoAST("--", "decremento", null, n3);
+      }
+      |LOOKAHEAD(BUCLES())
+      n1 = BUCLES()
+      |LOOKAHEAD(WRITE())
+      n1 = WRITE()
+      |LOOKAHEAD(K() "=")
+      n1 = ASIGNACION()
+      |LOOKAHEAD(DECLARACION())
+      n1 = DECLARACION()
+      |LOOKAHEAD(FLUJO()) 
+      n1 = FLUJO()
+      |LOOKAHEAD(METODO_FUNCION())
+      n1 = METODO_FUNCION()
+      |LOOKAHEAD(K())
+      n1 = K()
+      |<returnT> n3 = EXPRESION() {n1 = new nodoAST("return", "return", null, n3);}
+      |<breakT> {n1 = new nodoAST("break", "break", null);}
+    )
+    {
+      if(n2 == null){
+        n2 = new nodoAST("body", "body", null, n1);
+      }else{
+        n2.addHijo(n1);
+      }
+    }
+  )+
+  <nextT>
+  {
+    nodo = new nodoAST("for", "for", null, new nodoAST(t1.image, "identifier", t1.image), new nodoAST(inf.image, "num", Integer.parseInt(inf.image)), new nodoAST(sup.image, "num", Integer.parseInt(sup.image)), n2);
+    nodo.setSalto(salto);
+    return nodo;
+  }
+}
+
+
+
+int TIPO():{}{
+  <intT> {return 1;}
+  |<doubleT>{return 2;}
+  |<stringT>{return 3;}
+  |<charT>{return 4;}
+  |<boolT>{return 5;}
+  |<floatT>{return 2;}
+}
